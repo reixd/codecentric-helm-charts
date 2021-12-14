@@ -74,7 +74,7 @@ spec:
           {{- end }}
           {{- if .Values.outgoingSMTP.enabled }}
           volumeMounts:
-            - name: outsmtpdir
+            - name: smtpconfig-vol
               mountPath: /config
               readOnly: true
           {{- end }}
@@ -103,8 +103,7 @@ spec:
             secretName: {{ template "mailhog.authFileSecret" . }}
       {{- end }}
       {{- if .Values.outgoingSMTP.enabled }}
-      volumes:
-        - name: outsmtpdir
+        - name: smtpconfig-vol
           secret:
             secretName: {{ template "mailhog.outgoingSMTPSecret" . }}
       {{- end }}

@@ -66,17 +66,18 @@ spec:
           readinessProbe:
             tcpSocket:
               port: tcp-smtp
-          {{- if .Values.auth.enabled }}
+          {{- if (or .Values.auth.enabled .Values.outgoingSMTP.enabled) }}
           volumeMounts:
+          {{- if .Values.auth.enabled }}
             - name: authdir
               mountPath: /authdir
               readOnly: true
           {{- end }}
           {{- if .Values.outgoingSMTP.enabled }}
-          volumeMounts:
             - name: smtpconfig-vol
               mountPath: /config
               readOnly: true
+          {{- end }}
           {{- end }}
           {{- with .Values.containerSecurityContext }}
           securityContext:
@@ -96,8 +97,9 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if .Values.auth.enabled }}
+      {{- if (or .Values.auth.enabled .Values.outgoingSMTP.enabled) }}
       volumes:
+      {{- if .Values.auth.enabled }}
         - name: authdir
           secret:
             secretName: {{ template "mailhog.authFileSecret" . }}
@@ -106,4 +108,5 @@ spec:
         - name: smtpconfig-vol
           secret:
             secretName: {{ template "mailhog.outgoingSMTPSecret" . }}
+      {{- end }}
       {{- end }}
